@@ -1,0 +1,19 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "historias"
+    label: "Historias y Capítulos"
+    folder: "contenido/historias"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Título de la Historia", name: "title", widget: "string" }
+      - { label: "Género / Categoría", name: "category", widget: "select", options: ["Gótico", "Fantasía oscura", "Drama", "Relato corto"] }
+      - { label: "Número o Capítulo", name: "chapter", widget: "string", required: false }
+      - { label: "Resumen corto", name: "description", widget: "text" }
+      - { label: "Contenido completo del capítulo", name: "body", widget: "markdown" }
