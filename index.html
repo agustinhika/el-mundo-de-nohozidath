@@ -414,6 +414,39 @@ footer .blood{color:#733025}
       }
     });
   }
+</script> <!-- Lector desplegable integrado -->
+<div id="lector-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:99999; overflow-y:auto; padding:40px 20px;">
+  <div style="max-width:750px; margin:20px auto; background:#121212; border:1px solid #c9a050; padding:40px; border-radius:4px; position:relative; box-shadow:0 0 30px rgba(0,0,0,0.8);">
+    <button onclick="cerrarLector()" style="position:absolute; top:15px; right:20px; background:transparent; border:none; color:#c9a050; font-size:20px; cursor:pointer; font-family:serif;">✕ Cerrar</button>
+    <div id="lector-contenido" style="color:#d8d1bd; line-height:1.8; text-align:left; font-family:serif;"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+<script>
+  const converter = new showdown.Converter();
+
+  // Función para abrir cualquier historia buscando su archivo .md por el nombre
+  async function leerHistoriaPorNombre(nombreArchivo) {
+    const modal = document.getElementById('lector-modal');
+    const contenido = document.getElementById('lector-contenido');
+    contenido.innerHTML = '<p style="text-align:center; color:#c9a050;">Cargando manuscrito...</p>';
+    modal.style.display = 'block';
+
+    try {
+      const url = `https://raw.githubusercontent.com/agustinhika/el-mundo-de-nohozidath/main/contenido/historias/${nombreArchivo}.md`;
+      const res = await fetch(url);
+      if(!res.ok) throw new Error("No encontrada");
+      const md = await res.text();
+      contenido.innerHTML = converter.makeHtml(md);
+    } catch (e) {
+      contenido.innerHTML = '<p style="text-align:center; color:#888;">Este manuscrito aún no ha sido redactado desde el panel de administración.</p>';
+    }
+  }
+
+  function cerrarLector() {
+    document.getElementById('lector-modal').style.display = 'none';
+  }
 </script>
 </body>
 </html>
