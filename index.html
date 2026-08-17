@@ -347,33 +347,57 @@ footer .blood{color:#733025}
         mundos, personajes y relatos desde una mirada personal. Aquí la fantasía,
         el horror, el drama y la música pueden convivir en la misma página.
       </p>
-      <p>
-        El archivo crecerá con cada historia. Algunas tendrán principio y final;
-        otras quedarán deliberadamente incompletas, como las leyendas que se
-        cuentan en voz baja.
-      </p>
-      <div class="signature">— Bienvenido a Nohozidath.</div>
-    </div>
-  </div>
-</section>
-</main>
-
-<footer>
-  <div class="sig">EL MUNDO DE NOHOZIDATH</div>
-  <p>Escritura independiente · <span class="blood">Historias nacidas de la oscuridad</span></p>
-  <p>© 2026 · Todos los relatos pertenecen a su autor.</p>
-</footer>
+      <!-- Biblioteca para convertir el contenido a HTML -->
+<script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
 
 <script>
-  // Aparición suave al entrar en pantalla
-  const items = document.querySelectorAll('.card, .manuscript, .side-note, .author > *');
-  const observer = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.animate(
-          [{opacity:0, transform:'translateY(18px)'},{opacity:1, transform:'translateY(0)'}],
-          {duration:700, easing:'ease-out', fill:'forwards'}
-        );
+  const converter = new showdown.Converter();
+
+  async function cargarBiblioteca() {
+    const contenedor = document.querySelector('#historias');
+    if (!contenedor) return;
+
+    try {
+      const response = await fetch('https://api.github.com/repos/agustinhika/el-mundo-de-nohozidath/contents/contenido/historias');
+      if (!response.ok) return;
+      
+      const archivos = await response.json();
+      const historias = archivos.filter(f => f.name.endsWith('.md') && f.name !== 'README.md');
+
+      if (historias.length === 0) {
+        contenedor.innerHTML += '<p style="text-align:center; color:#888;">Aún no hay manuscritos publicados.</p>';
+        return;
+      }
+
+      let html = '<div style="display: grid; gap: 20px; max-width: 900px; margin: 30px auto; padding: 0 20px;">';
+
+      for (const h of historias) {
+        const resContenido = await fetch(h.download_url);
+        const textoMarkdown = await resContenido.text();
+        const textoHtml = converter.makeHtml(textoMarkdown);
+
+        html += `
+          <article style="background: rgba(20, 20, 20, 0.8); border: 1px solid #333; padding: 25px; border-radius: 6px; text-align: left;">
+            <div style="color: #d8d1bd; line-height: 1.7;">
+              ${textoHtml}
+            </div>
+          </article>
+        `;
+      }
+
+      html += '</div>';
+      contenedor.innerHTML += html;
+
+    } catch (e) {
+      console.error("Error cargando la biblioteca:", e);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', cargarBiblioteca);
+</script>
+
+</body>
+</html>        );
         observer.unobserve(entry.target);
       }
     });
